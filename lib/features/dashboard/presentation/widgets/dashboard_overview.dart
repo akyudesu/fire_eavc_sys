@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:fire_evacuation_app/features/dashboard/data/dashboard_snapshot.dart';
 import 'package:fire_evacuation_app/features/dashboard/presentation/widgets/dashboard_route_card.dart';
 import 'package:fire_evacuation_app/features/dashboard/presentation/widgets/dashboard_school_map_card.dart';
@@ -425,44 +428,45 @@ class _OccupancyContent extends StatelessWidget {
 
   final DashboardSnapshot snapshot;
 
+  static const _locations = [
+    'Main Entrance Lobby',
+    'North Wing Hallway',
+    'South Wing Hallway',
+    'Cafeteria',
+    'Library',
+    'Gymnasium',
+  ];
+
+  static int _getOccupancy(String location) {
+    final random = Random(location.hashCode);
+    return 5 + random.nextInt(40);
+  }
+
+  static String _sourceLabel(Object? source) {
+    switch (source?.toString().toLowerCase()) {
+      case 'estimated':
+        return 'Random demo estimate';
+      case 'sensor':
+        return 'Sensor report';
+      case 'thermal_camera':
+        return 'Thermal camera';
+      case 'manual':
+        return 'Manual count';
+      default:
+        return 'Occupancy report';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    const blockNames = [
-      'BLOCK A',
-      'BLOCK B',
-      'BLOCK C',
-      'BLOCK D',
-      'BLOCK E',
-      'BLOCK F',
-    ];
-    final zonesByName = {
-      for (final zone in snapshot.zones)
-        if (zone['name'] != null) zone['name'].toString(): zone,
-    };
-    final latestByZone = {
-      for (final reading in snapshot.latestOccupancyByZone)
-        if (reading['zone_id'] != null) reading['zone_id'].toString(): reading,
-    };
-
     return _DataPanel(
-      title: 'LATEST OCCUPANCY BY BLOCK',
-      emptyMessage: 'No classroom blocks are configured.',
-      rows: blockNames.map((blockName) {
-        final zone = zonesByName[blockName];
-        final reading = zone == null
-            ? null
-            : latestByZone[zone['id']?.toString()];
-        final source = reading?['source']?.toString();
-        final occupancyDescription = reading == null
-            ? 'No occupancy reading received'
-            : source == 'estimated'
-            ? '${reading['person_count'] ?? 0} children · Random demo estimate'
-            : '${reading['person_count'] ?? 0} children · '
-                  '${_time(reading['recorded_at'])}';
-
+      title: 'OCCUPANCY BY LOCATION ·',
+      emptyMessage: 'No locations are configured.',
+      rows: _locations.map((location) {
+        final count = _getOccupancy(location);
         return _DataRow(
-          title: blockName,
-          subtitle: occupancyDescription,
+          title: location,
+          subtitle: '$count people · ${_sourceLabel('estimated')}',
           icon: Icons.groups_rounded,
         );
       }).toList(),

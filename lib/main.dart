@@ -17,7 +17,7 @@ Future<void> main() async {
       'SUPABASE_URL',
       defaultValue: 'https://fwwftbcjcftavbnmvhkp.supabase.co',
     ),
-    publishableKey: const String.fromEnvironment(
+    publishableKey:  String.fromEnvironment(
       'SUPABASE_PUBLISHABLE_KEY',
       defaultValue: 'sb_publishable_flwOIu5K6BL-vFQ96QZHqA_Mt_XkKte',
     ),

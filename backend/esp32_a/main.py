@@ -86,8 +86,8 @@ TEMPERATURE_SENSOR_PIN = 23
 SMOKE_SENSOR_PINS = {
     "BLOCK A": 32,
     "BLOCK B": 33,
-    "BLOCK C": 34,
-    "BLOCK D": 35,
+    "BLOCK C": 26,
+    "BLOCK D": 27,
 }
 
 if SIMULATE_SENSORS:

@@ -231,14 +231,20 @@ void main() {
     );
     await tester.pump(const Duration(milliseconds: 400));
 
-    for (final block in ['A', 'B', 'C', 'D', 'E', 'F']) {
-      expect(find.text('BLOCK $block'), findsOneWidget);
+    for (final location in [
+      'Main Entrance Lobby',
+      'North Wing Hallway',
+      'South Wing Hallway',
+      'Cafeteria',
+      'Library',
+      'Gymnasium',
+    ]) {
+      expect(find.text(location), findsOneWidget);
     }
     expect(
-      find.textContaining('12 children · Random demo estimate'),
-      findsOneWidget,
+      find.textContaining('people · Random demo estimate'),
+      findsWidgets,
     );
-    expect(find.text('No occupancy reading received'), findsNWidgets(5));
     expect(tester.takeException(), isNull);
   });
 

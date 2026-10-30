@@ -78,15 +78,10 @@ class DashboardSnapshot {
   }
 
   int get peopleInside {
-    final latestByZone = <String, int>{};
-    for (final reading in occupancyReadings) {
-      final zoneId = reading['zone_id']?.toString();
+    return latestOccupancyByZone.fold<int>(0, (total, reading) {
       final count = reading['person_count'];
-      if (zoneId != null && count is num) {
-        latestByZone.putIfAbsent(zoneId, () => count.toInt());
-      }
-    }
-    return latestByZone.values.fold(0, (total, count) => total + count);
+      return total + ((count is num) ? count.toInt() : 0);
+    });
   }
 
   bool get hasOccupancyReadings => occupancyReadings.isNotEmpty;
@@ -128,9 +123,29 @@ class DashboardSnapshot {
     final latestByZone = <String, Map<String, dynamic>>{};
     for (final reading in occupancyReadings) {
       final zoneId = reading['zone_id']?.toString();
-      if (zoneId != null) latestByZone.putIfAbsent(zoneId, () => reading);
+      if (zoneId == null) continue;
+      final current = latestByZone[zoneId];
+      if (current == null || _isMoreRecent(reading, current)) {
+        latestByZone[zoneId] = reading;
+      }
     }
     return latestByZone.values.toList(growable: false);
+  }
+
+  static bool _isMoreRecent(
+    Map<String, dynamic> candidate,
+    Map<String, dynamic> existing,
+  ) {
+    final candidateTime = candidate['recorded_at']?.toString();
+    final existingTime = existing['recorded_at']?.toString();
+    if (candidateTime == null || existingTime == null) {
+      return false;
+    }
+    try {
+      return DateTime.parse(candidateTime).isAfter(DateTime.parse(existingTime));
+    } on FormatException {
+      return false;
+    }
   }
 
   Map<String, Map<String, dynamic>> get risksByZone {
